@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="footer__top">
         <div className="footer__brand">
           <Link to="/" className="navbar__logo" style={{ textDecoration: 'none' }}>
-            VÉLA<span>LUXORA</span>
+            VELA<span>LUXORA</span>
           </Link>
           <p>Luxury jewellery handcrafted in India. Each piece tells a story worth wearing.</p>
         </div>
@@ -27,7 +27,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="footer__bottom">
-        <p>© 2026 Vélaluxora. All rights reserved.</p>
+        <p>© 2026 Velaluxora. All rights reserved.</p>
         <div className="footer__social">
           {["Instagram", "Pinterest", "Facebook"].map(s => <a key={s} href="#">{s}</a>)}
         </div>
