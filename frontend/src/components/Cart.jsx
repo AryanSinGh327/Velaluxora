@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useCart } from "../context/CartContext.jsx";
 import "../App.css";
 
 /* ── Keyframes ── */
@@ -6,34 +7,6 @@ const KEYFRAMES = `
   @keyframes cart-fadeIn  { from { opacity: 0 }                  to { opacity: 1 } }
   @keyframes cart-slideIn { from { transform: translateX(100%) } to { transform: translateX(0) } }
 `;
-
-/* ── Dummy data — swap with real products later ── */
-const DUMMY_ITEMS = [
-  {
-    _id: "1",
-    name: "Aurora Ring",
-    category: "18K Gold · Size 7",
-    price: 4299,
-    qty: 1,
-    image: "https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=200&q=80",
-  },
-  {
-    _id: "2",
-    name: "Celeste Pendant",
-    category: "Sterling Silver",
-    price: 6199,
-    qty: 1,
-    image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200&q=80",
-  },
-  {
-    _id: "3",
-    name: "Luna Earrings",
-    category: "Rose Gold",
-    price: 2899,
-    qty: 2,
-    image: "https://images.unsplash.com/photo-1589128777073-263566ae5e4d?w=200&q=80",
-  },
-];
 
 const fmt = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
 
@@ -129,17 +102,21 @@ function CartItem({ item, onRemove, onQty }) {
      onClose — () => void
 ──────────────────────── */
 export default function Cart({ isOpen, onClose }) {
-  const [items, setItems] = useState(DUMMY_ITEMS);
+  const { cartItems: items, removeFromCart, updateQty } = useCart();
   const [promo, setPromo] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
 
-  const handleRemove = (id) => setItems((prev) => prev.filter((i) => i._id !== id));
+  const handleRemove = (id) => {
+    removeFromCart(id);
+  };
 
-  const handleQty = (id, delta) =>
-    setItems((prev) =>
-      prev.map((i) => (i._id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i))
-    );
+  const handleQty = (id, delta) => {
+    const item = items.find((i) => i._id === id);
+    if (item) {
+      updateQty(id, item.qty + delta);
+    }
+  };
 
   const handlePromo = () => {
     if (promo.trim().toUpperCase() === "VELA10") {

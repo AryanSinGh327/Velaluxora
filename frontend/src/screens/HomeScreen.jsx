@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "../App.css";
+import { useCart } from '../context/CartContext.jsx';
 
 const CATEGORIES = [
   {
@@ -30,12 +31,14 @@ export default function HomeScreen() {
   const [subscribed, setSubscribed] = useState(false);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const { data } = await axios.get("http://localhost:5000/api/products");
-        setProducts(data.slice(0, 4)); 
+        const shuffledData = [...data].sort(() => 0.5 - Math.random());
+        setProducts(shuffledData.slice(0, 4)); 
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data from backend", error);
@@ -119,7 +122,7 @@ export default function HomeScreen() {
                   <h4>{p.name}</h4>
                   <div className="product-card__footer">
                     <span className="product-card__price">₹{p.price}</span>
-                    <button className="btn btn--small">Add to Cart</button>
+                    <button className="btn btn--small" onClick={() => addToCart(p)}>Add to Cart</button>
                   </div>
                 </div>
               </div>
