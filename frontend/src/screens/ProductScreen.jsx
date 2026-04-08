@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useCart } from '../context/CartContext.jsx';
 import axios from "axios";
 import "../App.css";
 
@@ -7,6 +8,7 @@ export default function ProductScreen() {
   const { id } = useParams();
   const [product, setProduct] = useState({});
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -57,6 +59,7 @@ export default function ProductScreen() {
             className="btn btn--primary" 
             style={{ width: "100%", padding: "1.5rem" }}
             disabled={product.countInStock === 0}
+            onClick={() => addToCart(product)}
           >
             ADD TO CART
           </button>
