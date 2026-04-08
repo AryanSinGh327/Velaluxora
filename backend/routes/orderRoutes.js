@@ -1,50 +1,67 @@
 import express from 'express';
-import Order from '../models/orderModel.js';
-import { protect } from '../middleware/authMiddleware.js'; 
+import User from '../models/userModel.js';
+import generateToken from '../utils/generateToken.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-router.post('/', protect, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const {
-      orderItems,
-      shippingAddress,
-      paymentMethod,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
-    } = req.body;
-    if (orderItems && orderItems.length === 0) {
-      res.status(400).json({ message: 'No order items in the cart' });
-      return;
-    } 
-    const order = new Order({
-      orderItems: orderItems.map((item) => ({
-        ...item,
-        product: item._id, 
-        _id: undefined 
-      })),
-      user: req.user._id,
-      shippingAddress,
-      paymentMethod,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
+    const { name, email, password } = req.body;
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+    const user = await User.create({
+      name,
+      email,
+      password,
     });
-    const createdOrder = await order.save();
-    res.status(201).json(createdOrder);
-
+    if (user) {
+      generateToken(res, user._id); 
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      });
+    } else {
+      res.status(400).json({ message: 'Invalid user data received' });
+    }
   } catch (error) {
-    console.error("Order Creation Error:", error);
-    res.status(500).json({ message: 'Server error while creating order' });
+    res.status(500).json({ message: 'Server Error' });
   }
 });
-router.get('/mine', protect, async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id });
-    res.json(orders);
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (user && (await user.matchPassword(password))) {
+      generateToken(res, user._id); 
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      });
+    } else {
+      res.status(401).json({ message: 'Invalid email or password' });
+    }
   } catch (error) {
-    console.error("Fetch Orders Error:", error);
-    res.status(500).json({ message: 'Server error while fetching orders' });
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+router.get('/profile', protect, async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (user) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    });
+  } else {
+    res.status(404).json({ message: 'User not found' });
   }
 });
 

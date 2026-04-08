@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCart } from "../context/CartContext.jsx";
 import "../App.css";
+import { useNavigate } from 'react-router-dom';
 
 /* ── Keyframes ── */
 const KEYFRAMES = `
@@ -106,6 +107,7 @@ export default function Cart({ isOpen, onClose }) {
   const [promo, setPromo] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
+  const navigate = useNavigate();
 
   const handleRemove = (id) => {
     removeFromCart(id);
@@ -269,7 +271,10 @@ export default function Cart({ isOpen, onClose }) {
               <span style={{ fontFamily: "var(--ff-display)", fontSize: "1.3rem", fontWeight: 300, color: "var(--charcoal)" }}>{fmt(total)}</span>
             </div>
 
-            <button className="btn btn--primary" style={{ width: "100%", marginBottom: "0.75rem" }}>
+            <button className="btn btn--primary" style={{ width: "100%", marginBottom: "0.75rem" }} onClick={() => {
+              onClose();
+              navigate('/shipping');
+            }}>
               Proceed to Checkout
             </button>
             <button className="btn btn--ghost" style={{ width: "100%" }} onClick={onClose}>

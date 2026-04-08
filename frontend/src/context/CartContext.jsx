@@ -25,12 +25,32 @@ export const CartProvider = ({ children }) => {
       )
     );
   };
+  const [shippingAddress, setShippingAddress] = useState({});
+  const saveShippingAddress = (data) => {
+    setShippingAddress(data);
+  };
+  const [paymentMethod, setPaymentMethod] = useState('Stripe');
+  const savePaymentMethod = (method) => {
+    setPaymentMethod(method);
+  };
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQty }}>
+    <CartContext.Provider 
+      value={{ 
+        cartItems, 
+        addToCart, 
+        removeFromCart, 
+        updateQty, 
+        shippingAddress, 
+        saveShippingAddress, 
+        paymentMethod,
+        savePaymentMethod
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 };
+
 export const useCart = () => {
   return useContext(CartContext);
 };
