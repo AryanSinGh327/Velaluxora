@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext.jsx';
+import { useCart } from '../context/useCart.js';
 import '../App.css';
 
 export default function ShippingScreen() {

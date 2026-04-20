@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../App.css";
-import { useCart } from '../context/CartContext.jsx';
+import { useCart } from '../context/useCart.js';
 
 const CATEGORIES = [
   {
@@ -75,14 +75,11 @@ export default function HomeScreen() {
             }}
             onLoad={e => e.target.style.transform = 'scale(1)'}
           />
-          {/* SUBTLE OVERLAY */}
           <div style={{
             position: 'absolute',
             inset: 0,
             background: 'linear-gradient(to right, transparent 60%, var(--cream) 100%)',
           }} />
-
-          {/* FLOATING BADGE */}
           <div style={{
             position: 'absolute',
             bottom: '3rem',
@@ -111,8 +108,6 @@ export default function HomeScreen() {
           padding: 'clamp(3rem, 6vw, 7rem)',
           position: 'relative',
         }}>
-
-          {/* EST. TAG */}
           <div style={{
             position: 'absolute',
             top: '3rem',
@@ -129,7 +124,6 @@ export default function HomeScreen() {
             Est. 2024
           </div>
 
-          {/* EYEBROW */}
           <p style={{
             fontSize: '0.7rem',
             letterSpacing: '0.35em',
@@ -140,7 +134,6 @@ export default function HomeScreen() {
             New Collection 2026
           </p>
 
-          {/* TITLE */}
           <h1 style={{
             fontFamily: 'var(--ff-display)',
             fontSize: 'clamp(3rem, 5vw, 5.5rem)',
@@ -153,7 +146,6 @@ export default function HomeScreen() {
             <span style={{ fontStyle: 'italic' }}>Whispers</span> Gold
           </h1>
 
-          {/* GOLD DIVIDER */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -164,7 +156,6 @@ export default function HomeScreen() {
             <span style={{ color: 'var(--gold)', fontSize: '0.8rem' }}>✦</span>
           </div>
 
-          {/* SUBTITLE */}
           <p style={{
             fontSize: '0.95rem',
             color: 'var(--text-muted)',
@@ -175,7 +166,6 @@ export default function HomeScreen() {
             Handcrafted luxury jewellery for the woman who needs no introduction. Each piece tells a story worth wearing.
           </p>
 
-          {/* BUTTONS */}
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '4rem' }}>
             <button
               className="btn btn--primary"
@@ -193,7 +183,6 @@ export default function HomeScreen() {
             </button>
           </div>
 
-          {/* STATS ROW */}
           <div style={{
             display: 'flex',
             gap: '2.5rem',
@@ -227,7 +216,6 @@ export default function HomeScreen() {
               </div>
             ))}
           </div>
-
         </div>
       </section>
 
@@ -257,7 +245,12 @@ export default function HomeScreen() {
         </div>
         <div className="categories__grid">
           {CATEGORIES.map((c) => (
-            <div className="category-card" key={c.name}>
+            <div
+              className="category-card"
+              key={c.name}
+              onClick={() => navigate(`/collections?category=${c.name}`)}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="category-card__img-wrap">
                 <img src={c.img} alt={c.name} />
                 <div className="category-card__overlay" />
@@ -265,7 +258,7 @@ export default function HomeScreen() {
               <div className="category-card__body">
                 <h3>{c.name}</h3>
                 <p>{c.desc}</p>
-                <a href="#" className="category-card__link">Shop →</a>
+                <span className="category-card__link">Shop →</span>
               </div>
             </div>
           ))}
@@ -327,7 +320,9 @@ export default function HomeScreen() {
           <p className="section__eyebrow" style={{ color: "#d4af7a" }}>Our Promise</p>
           <h2>Crafted with Intention.<br />Worn with Grace.</h2>
           <p>Every piece is ethically sourced, hallmark certified, and made to last a lifetime.</p>
-          <button className="btn btn--primary">Our Story</button>
+          <button className="btn btn--primary" onClick={() => navigate('/about')}>
+            Our Story
+          </button>
         </div>
       </section>
 
