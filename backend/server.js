@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config();
 import path from 'path';
 import express from 'express';
 import connectDB from './config/db.js';
@@ -13,8 +14,15 @@ import cookieParser from 'cookie-parser';
 connectDB();
 
 const app = express();
-app.use(cors());
+app.options('*', cors()); 
+app.use(cors({
+  origin: 'https://velaluxora.vercel.app',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
+app.set('trust proxy', 1);
 app.use(cookieParser());
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
