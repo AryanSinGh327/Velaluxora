@@ -1,4 +1,5 @@
 import 'dotenv/config';
+dotenv.config();
 import path from 'path';
 import express from 'express';
 import connectDB from './config/db.js';
@@ -10,7 +11,6 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import cookieParser from 'cookie-parser';
 
-dotenv.config();
 connectDB();
 
 const app = express();
@@ -20,11 +20,12 @@ app.use(cors({
     'http://localhost:5173',        
     'http://localhost:3000'          
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+app.set('trust proxy', 1);
 app.use(cookieParser());
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
