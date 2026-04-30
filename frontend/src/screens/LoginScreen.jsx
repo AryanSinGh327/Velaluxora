@@ -28,6 +28,7 @@ export default function LoginScreen() {
 
   const setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
+      auth.settings.appVerificationDisabledForTesting = false;
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'invisible',
         'callback': (response) => {

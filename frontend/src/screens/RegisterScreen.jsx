@@ -30,6 +30,7 @@ export default function RegisterScreen() {
   }, [resendTimer]);
   const setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
+      auth.settings.appVerificationDisabledForTesting = false;
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'invisible',
         'callback': (response) => {
