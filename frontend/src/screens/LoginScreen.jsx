@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { auth } from '../firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import axios from 'axios';
 import '../App.css';
 
 export default function LoginScreen() {
@@ -10,7 +13,7 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
-
+  const [confirmationResult, setConfirmationResult] = useState(null);
   const otpRefs = useRef([]);
   const navigate = useNavigate();
   const { userInfo, setCredentials } = useAuth();
@@ -23,17 +26,41 @@ export default function LoginScreen() {
     return () => clearTimeout(t);
   }, [resendTimer]);
 
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => {
+        }
+      });
+    }
+  };
+
   const handleSendOtp = async (e) => {
     e.preventDefault();
     setError('');
     if (phone.length < 10) return setError('Please enter a valid 10-digit mobile number');
     setLoading(true);
-    // TODO: await axios.post('/api/users/send-otp', { phone: '+91' + phone });
-    await new Promise(r => setTimeout(r, 900));
-    setLoading(false);
-    setStep(2);
-    setResendTimer(30);
-    setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    try {
+      setupRecaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      const formattedPhone = '+91' + phone;
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+      setConfirmationResult(confirmation);
+      setStep(2);
+      setResendTimer(30);
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    } catch (err) {
+      console.error("Firebase SMS Error:", err);
+      setError('Failed to send OTP. Please try again.');
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.render().then(function(widgetId) {
+          window.grecaptcha.reset(widgetId);
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOtpChange = (val, idx) => {
@@ -56,22 +83,41 @@ export default function LoginScreen() {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setError('');
-    if (otp.join('').length < 6) return setError('Please enter the complete 6-digit OTP');
+    if (otp.join('').length < 6) return setError('Please enter the complete 6-digit OTP'); 
     setLoading(true);
-    // TODO: const { data } = await axios.post('/api/users/verify-otp', { phone: '+91' + phone, otp: otp.join('') });
-    // TODO: setCredentials(data); navigate('/');
-    await new Promise(r => setTimeout(r, 900));
-    setLoading(false);
-    setError('Backend not connected yet — OTP flow ready to wire up ✓');
+    try {
+      await confirmationResult.confirm(otp.join(''));
+      const { data } = await axios.post('/api/users/verify-otp', { 
+        phoneNumber: phone 
+      });
+      setCredentials(data); 
+      navigate('/');
+    } catch (err) {
+      console.error("Verification Error:", err);
+      setError('Invalid OTP. Please check and try again.');
+      setOtp(['', '', '', '', '', '']); 
+      otpRefs.current[0]?.focus();
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const handleResend = () => {
+  const handleResend = async () => {
     if (resendTimer > 0) return;
     setOtp(['', '', '', '', '', '']);
     setError('');
     setResendTimer(30);
     otpRefs.current[0]?.focus();
-    // TODO: axios.post('/api/users/send-otp', { phone: '+91' + phone });
+    
+    try {
+      setupRecaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      const formattedPhone = '+91' + phone;
+
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+      setConfirmationResult(confirmation);
+    } catch (err) {
+      setError('Failed to resend OTP.');
+    }
   };
 
   return (
@@ -270,6 +316,7 @@ export default function LoginScreen() {
           </div>
         </div>
       </div>
+      <div id="recaptcha-container" style={{ position: 'fixed', bottom: 0, right: 0, zIndex: 9999 }}></div>
     </>
   );
 }
