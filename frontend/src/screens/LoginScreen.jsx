@@ -27,6 +27,7 @@ export default function LoginScreen() {
   }, [resendTimer]);
 
   const setupRecaptcha = () => {
+    if (!document.getElementById('recaptcha-container')) return;
     if (!window.recaptchaVerifier) {
       auth.settings.appVerificationDisabledForTesting = false;
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
