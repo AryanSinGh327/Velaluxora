@@ -1332,3 +1332,13 @@ img { display: block; width: 100%; max-width: 100%; object-fit: cover; }
 .grecaptcha-badge:hover { 
   width: 256px !important; 
 }
+@media screen and (max-width: 480px) {
+  iframe[title="reCAPTCHA"] {
+    transform: scale(0.85);
+    transform-origin: 0 0;
+    left: 10px !important;
+  }
+  div[style*="visibility: visible"] {
+    overflow: visible !important;
+  }
+}
